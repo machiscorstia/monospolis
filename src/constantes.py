@@ -3,6 +3,12 @@ FPS                 = 60
 ANCHURA, ALTURA     = 800, 800
 FUENTE_PRINCIPAL    = 'comicsans'
 
+# Jugador
+J_DINERO    = 1000
+J_NOMBRE    = 'Jugador'
+J_POSICION  = 0
+J_COLOR     = (0, 0, 0)
+
 # Texto
 T_FUENTE    = 'ebrima'
 T_ESCALA    = (200, 50)
