@@ -1,6 +1,7 @@
 import sys, pygame as py
 from src.constantes import *
 from src.graficos import *
+from src.tablero import *
 from src.texto import *
 from src.boton import *
 
@@ -12,6 +13,7 @@ class Juego:
         self.panelActual = None
         self.panelFondos = cargarFondos()
         self.panelElementos = list()
+        self.tablero = Tablero()
         self.cargarElementos()
         self.pantalla = py.display.set_mode( (ANCHURA, ALTURA) )
         self.posicionDelRaton = py.mouse.get_pos()
@@ -81,5 +83,6 @@ class Juego:
         self.corriendo = True
         self.panelActual = PANEL_MENU
         self.actualizarPantalla()
+        print(self.tablero.mostrarPosiciones())
         while self.corriendo: self.chequearEventos()
         py.quit()
