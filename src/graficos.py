@@ -7,3 +7,6 @@ def cargarFondos():
         py.image.load('./imgs/fondos/configuracion.jpg'),
         py.image.load('./imgs/fondos/partida.png')
     ]
+def cargarImagenFicha():
+    return py.image.load('./imgs/ficha.png')
+    
