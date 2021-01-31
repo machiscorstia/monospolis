@@ -1,5 +1,5 @@
 from src.constantes import *
-from src.graficos import *
+from src.interfaz.graficos import *
 
 class Jugador:
     def __init__(self, nombre = J_NOMBRE, posicion = J_POSICION, color = J_COLOR):
