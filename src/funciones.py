@@ -8,6 +8,12 @@ def crearRutaHorizontal(xi, xf, y, s):
     for x in range(xi, xf, s): ruta.append([x, y])
     return ruta
 
+def siguienteItem(valorActual, lista):
+    index = lista.index(valorActual)
+    if index < len(lista) - 1: index += 1
+    else: index = 0
+    return index
+    
 def generarPosicionesTablero():
     ruta = list()
     for posicion in crearRutaVertical(750, 0, x=50, s=-50): ruta.append(posicion)

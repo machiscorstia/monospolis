@@ -2,15 +2,16 @@ import pygame.font
 from src.constantes import *
 
 class Boton:
-    def __init__(self, x, y, fuente = B_FUENTE, tamanio = B_FTAMANIO, colort = BLANCO, bg = NEGRO, escala = B_ESCALA, m = None, accion=None):
+    def __init__(self, x, y, fuente=FUENTE_PRINCIPAL, tamaniof=TF_NORMAL, grueso=False, colort=BLANCO, bg=NEGRO, escala=ESCALA_NORMAL, m=None, input=False, acciones=False):
         self.x, self.y = x, y
         self.anchura, self.altura = escala
-        self.fuente = pygame.font.SysFont(fuente, tamanio)
+        self.fuente = pygame.font.SysFont(fuente, tamaniof, bold=False)
+        self.permiteEntrada = input
         self.fondo = bg
         self.fondoPorDefecto = bg
         self.colorTexto = colort
         self.rect = pygame.Rect(self.x, self.y, self.anchura, self.altura)
-        self.accion = accion
+        self.acciones = acciones
         self.mensaje = m
         self.prepararMensaje(self.mensaje)
     
@@ -22,12 +23,21 @@ class Boton:
     def cambiarColor(self, colorTexto, colorFondo):
         self.imagenMensaje = self.fuente.render(self.mensaje, True, colorTexto, colorFondo)
         self.fondo = colorFondo
+
+    def cambiarTexto(self, m):
+        self.mensaje = m
     
     def estaColiccionando(self, punto):
         return self.rect.collidepoint(punto)
 
-    def ejecutarAccion(self):
-        return self.accion
+    def agregarAccion(self, accion):
+        print(accion, 'agregando')
+        self.acciones.append(accion)
+    
+    def ejecutarAcciones(self):
+        if not self.acciones: return False 
+        else: 
+            for accion in self.acciones: accion()
     
     def mostrar(self, pantalla):
         pantalla.fill(self.fondo, self.rect)

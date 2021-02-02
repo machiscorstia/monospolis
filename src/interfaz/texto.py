@@ -2,7 +2,7 @@ import pygame.font
 from src.constantes import *
 
 class Texto:
-    def __init__(self, x, y, fuente = T_FUENTE, grueso = False, tamaniof = T_FTAMANIO, colort = BLANCO, escala = T_ESCALA, m = None):
+    def __init__(self, x, y, fuente=FUENTE_PRINCIPAL, grueso=False, tamaniof=TF_NORMAL, colort=BLANCO, escala=ESCALA_NORMAL, m=None):
         self.x, self.y = x, y
         self.anchura, self.altura = escala
         self.fuente = pygame.font.SysFont(fuente, tamaniof, bold= grueso)

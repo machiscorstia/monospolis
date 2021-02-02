@@ -1,23 +1,34 @@
 # Pantalla
 FPS                 = 60
 ANCHURA, ALTURA     = 800, 800
-FUENTE_PRINCIPAL    = 'comicsans'
+
+# Tablero
+JUGADORES_PREDETERMINADO = 0
+NETO_PREDETERMINADO      = 0
+SALARIO_PREDETERMINADO   = 0
+
+CANTIDAD_JUGADORES  = [2, 3, 4, 6]
+CANTIDAD_NETOS      = [2000, 4000, 7000]
+CANTIDAD_SALARIOS   = [200, 300, 400]
+DINERO_INICIAL      = 1000
+
+# Escalas
+ESCALA_NORMAL   = (200, 50)
+ESCALA_MEDIANA  = (100, 50)
+ESCALA_INTER    = (100, 30)
+ESCALA_PEQUE    = (50, 30)
+
+# Fuentes, Tamaño fuente -> TF
+FUENTE_PRINCIPAL    = 'arial'
+TF_NORMAL           = 30
+TF_MEDIANO          = 20
+TF_PEQUE            = 10
 
 # Jugador
 J_DINERO    = 1000
 J_NOMBRE    = 'Jugador'
 J_POSICION  = 0
 J_COLOR     = (0, 0, 0)
-
-# Texto
-T_FUENTE    = 'ebrima'
-T_ESCALA    = (200, 50)
-T_FTAMANIO  = 35
-
-# Botones
-B_FUENTE      = 'arial'
-B_ESCALA      = (200, 50)
-B_FTAMANIO    = 30
 
 # Paneles
 PANEL_MENU          = 0
