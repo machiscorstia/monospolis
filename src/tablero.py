@@ -13,7 +13,13 @@ class Tablero:
     def cambiarCantidadJugadores(self):
         self.cantidadJugadores = CANTIDAD_JUGADORES[siguienteItem(self.cantidadJugadores, CANTIDAD_JUGADORES)]
         return self.cantidadJugadores
+    
+    def limpiarJugadores(self): self.jugadores.clear()
 
+    def cambiarSalario(self):
+        self.salario = CANTIDAD_SALARIOS[siguienteItem(self.salario, CANTIDAD_SALARIOS)]
+        return self.salario
+    
     def cambiarNeto(self):
         self.netoMaximo = CANTIDAD_NETOS[siguienteItem(self.netoMaximo, CANTIDAD_NETOS)]
         return self.netoMaximo
