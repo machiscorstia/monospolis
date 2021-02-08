@@ -27,7 +27,7 @@ TF_PEQUE            = 10
 # Jugador
 J_DINERO    = 1000
 J_NOMBRE    = 'Jugador'
-J_POSICION  = 0
+J_POSICION  = (100, 100)
 J_COLOR     = (0, 0, 0)
 
 # Paneles

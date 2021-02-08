@@ -11,5 +11,6 @@ class Jugador:
         self.rect = self.imagen.get_rect()
         self.rect.x, self.rect.y = posicion
 
-    def mostrar(self, pantalla):
-        pantalla.blit(self.imagen, self.rect)
+    def establecerPosicion(self, posicion): self.rect.x, self.rect.y = posicion
+
+    def mostrar(self, pantalla): pantalla.blit(self.imagen, self.rect)

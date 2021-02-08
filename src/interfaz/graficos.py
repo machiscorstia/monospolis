@@ -1,13 +1,13 @@
-import pygame as py
+import os, pygame as py
 from src.constantes import *
 
 def cargarFondos():
     return [
-        py.image.load('./imgs/fondos/menu.jpg'),
-        py.image.load('./imgs/fondos/configuracion.jpg'),
-        py.image.load('./imgs/fondos/configuracion.jpg'),
-        py.image.load('./imgs/fondos/partida.png')
+        py.image.load('../imgs/fondos/menu.jpg'),
+        py.image.load('../imgs/fondos/configuracion.jpg'),
+        py.image.load('../imgs/fondos/configuracion.jpg'),
+        py.image.load('../imgs/fondos/partida.png')
     ]
 def cargarImagenFicha():
-    return py.image.load('./imgs/ficha.png')
+    return py.image.load(os.getcwd() + '/imgs/ficha.png')
     
