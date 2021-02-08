@@ -21,6 +21,8 @@ class Boton:
         self.imagenMensajeRect = self.imagenMensaje.get_rect()
         self.imagenMensajeRect.center = self.rect.center
 
+    def obtenerTexto(self): return self.mensaje
+    
     def cambiarFondo(self, fondo): self.fondo = fondo
     
     def cambiarColor(self, colorTexto, colorFondo):

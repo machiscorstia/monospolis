@@ -1,5 +1,5 @@
 # Pantalla
-FPS                 = 60
+FPS_DISPONIBLES     = [25, 30, 60, 120]
 ANCHURA, ALTURA     = 800, 800
 
 # Tablero
