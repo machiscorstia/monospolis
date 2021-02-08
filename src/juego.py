@@ -12,6 +12,8 @@ class Juego:
     def __init__(self):
         py.init()
         self.corriendo = False
+        self.fps = FPS_DISPONIBLES[0]
+        self.reloj = py.time.Clock()
         self.centro =  ANCHURA/2 - ESCALA_NORMAL[0]/2
         self.pantalla = py.display.set_mode( (ANCHURA, ALTURA) )
         self.posicionDelRaton = py.mouse.get_pos()
@@ -21,8 +23,14 @@ class Juego:
         self.ingresandoInformacion = False
         self.objetivoJugador = 0
         self.entradaObjetivo = None
+        self.bufferJugador = []
 
         py.display.set_caption("Monospolis")
+
+        self.contador = 0
+        self.eventoAdvertencia = py.USEREVENT + 1
+        self.botonAdvertencia = self.botonAdvertencia = Boton(100, 100, bg=NEGRO, escala=(300,40), tamaniof=20,m='Nadita', dinamico=True)
+        self.hayAdvertencia = False
 
         self.panelActual = None
         self.paneles = [
@@ -58,6 +66,12 @@ class Juego:
                         acciones = [self.tablero.cambiarNeto]
                     ),
 
+                    Texto(self.centro/1.6, 300, tamaniof=25, m='Fps'),
+                    Boton(ANCHURA/2, 310, tamaniof=20, escala=ESCALA_INTER, bg=AZUL_OSCURO, dinamico=True,
+                        m = self.fps,
+                        acciones = [self.cambiarFps]
+                    ),
+
                     Boton(self.centro, 700, m='Volver', acciones=[self.establecerPanelMenu])
                 ]
             ),
@@ -73,14 +87,30 @@ class Juego:
     
     def detener(self): self.corriendo = False
     
-    def comenzarPartida(self):
+    def agregarAdvertencia(self, mensaje, tiempo):
+        self.contador = tiempo
+        self.botonAdvertencia.cambiarTexto(mensaje)
+        py.time.set_timer(self.eventoAdvertencia, tiempo)
+
+    def cambiarFps(self):
         pass
 
+    def comenzarPartida(self):
+        
+        if self.ingresandoInformacion: self.ingresandoInformacion = False
+        if len(self.bufferJugador) != self.tablero.cantidadJugadores:
+            self.hayAdvertencia = True
+            print(self.posicionDelRaton)
+            self.botonAdvertencia.rect.x, self.botonAdvertencia.rect.y= self.posicionDelRaton
+            self.agregarAdvertencia('Ingresa todos los nombres', 20)
+
+    
     def actualizarFondo(self): self.obtenerPanelActual().mostrarFondo()
 
     def restablecerJugadores(self): 
         self.objetivoJugador = 0
         self.ingresandoInformacion = False
+        if self.entradaObjetivo: self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
         self.obtenerPanelActual().obtenerElementos()[1].cambiarTexto('Clic para ingresar nombre')
         self.tablero.limpiarJugadores()
 
@@ -99,43 +129,64 @@ class Juego:
     def obtenerPanelActual(self): return self.paneles[self.panelActual]
 
     def obtenerColiccionBoton(self): return self.obtenerPanelActual().obtenerColiccion(self.posicionDelRaton, Boton)
-
+    
     def accionarBoton(self):
         if not self.ingresandoInformacion and self.obtenerColiccionBoton().permiteEntrada:
             self.entradaObjetivo = self.obtenerColiccionBoton()
             self.entradaObjetivo.cambiarTexto('')
             self.ingresandoInformacion = True
+        
+        if self.ingresandoInformacion and self.obtenerColiccionBoton().permiteEntrada: 
+            self.entradaObjetivo = self.obtenerColiccionBoton()
+            self.entradaObjetivo.cambiarTexto('')
+
         self.obtenerPanelActual().accionarElemento(self.posicionDelRaton)
 
     def prepararPartida(self):
         self.establecerPanelIngreso()
-    
+
     def chequearIngresoTeclado(self, evento):
         if evento.unicode.isalpha(): self.entradaObjetivo.agregarCaracter(evento.unicode)
         elif evento.key == py.K_BACKSPACE: self.entradaObjetivo.eliminarCaracter()
         elif evento.key == py.K_SPACE: self.entradaObjetivo.agregarCaracter(' ')
+
         elif evento.key == py.K_RETURN and self.entradaObjetivo.mensaje != '':
+            self.bufferJugador.append(self.entradaObjetivo.obtenerTexto())
             self.objetivoJugador += 1
-            self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
-            self.entradaObjetivo.cambiarTexto('Nombre..')
+            self.actualizarEntradaObjetivo()
             if self.objetivoJugador == self.tablero.cantidadJugadores:
+                print(self.bufferJugador)
                 self.ingresandoInformacion = False
-                self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
                 self.establecerPanelPartida()
+
+    def actualizarAdvertencia(self):
+        self.contador -= 1
+        if self.contador == 0:
+            self.hayAdvertencia = False
+            py.time.set_timer(self.eventoAdvertencia, 0)
+    
+    def mostrarAdvertencia(self): self.botonAdvertencia.mostrar(self.pantalla)
 
     def chequearEventos(self):
         self.chequearSuperposicion()
 
         for evento in py.event.get():
             if evento.type == py.QUIT: self.detener()
-            if evento.type == py.MOUSEBUTTONDOWN: self.accionarBoton() if self.obtenerColiccionBoton() else None
-            if evento.type == py.MOUSEMOTION: pass
-            if evento.type == py.KEYDOWN and self.ingresandoInformacion: self.chequearIngresoTeclado(evento)
+            elif evento.type == py.MOUSEBUTTONDOWN: self.accionarBoton() if self.obtenerColiccionBoton() else None
+            elif evento.type == py.MOUSEMOTION: pass
+            elif evento.type == self.eventoAdvertencia: self.actualizarAdvertencia()
+            elif evento.type == py.KEYDOWN and self.ingresandoInformacion: self.chequearIngresoTeclado(evento)
+    
+    def actualizarEntradaObjetivo(self):
+        self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
+        self.entradaObjetivo.cambiarTexto('Clic para ingresar nombre')
     
     def actualizarPantalla(self):
         self.actualizarFondo()
         self.actualizarPosicionDelRaton()
         self.obtenerPanelActual().mostrarElementos()
+        if self.hayAdvertencia: self.mostrarAdvertencia()
+        self.reloj.tick(60)
         py.display.update()
 
     def iniciar(self):
