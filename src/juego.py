@@ -135,7 +135,7 @@ class Juego:
         self.bufferJugador.clear()
         self.ingresandoInformacion = False
         if self.entradaObjetivo: self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
-        self.obtenerPanelActual().obtenerElementos()[1].cambiarTexto('Clic para ingresar nombre')
+        #self.obtenerPanelActual().obtenerElementos()[1].cambiarTexto('Clic para ingresar nombre')
         self.tablero.limpiarJugadores()
 
     def actualizarPosicionDelRaton(self): self.posicionDelRaton = py.mouse.get_pos()
@@ -212,7 +212,9 @@ class Juego:
         self.actualizarPosicionDelRaton()
         self.obtenerPanelActual().mostrarElementos()
         if self.hayAdvertencia: self.mostrarAdvertencia()
-        if self.enPartida: self.tablero.mostrarJugadores(self.pantalla)
+        if self.enPartida: 
+            self.tablero.mostrarInformacionJugadores(self.pantalla)
+            self.tablero.mostrarJugadores(self.pantalla)
         self.reloj.tick(self.fps)
         py.display.update()
 

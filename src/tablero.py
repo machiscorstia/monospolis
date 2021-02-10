@@ -1,5 +1,6 @@
 from src.funciones import *
 from src.constantes import *
+from src.interfaz.texto import Texto
 from random import randrange
 
 class Tablero:
@@ -16,6 +17,12 @@ class Tablero:
 
     def establecerTurnoInicial(self): self.jugadorConTurno = self.jugadores[0]
 
+    def mostrarInformacionJugadores(self, pantalla):
+        y = 200
+        for jugador in self.jugadores:
+            jugador.mostrarInformacion(pantalla, (200, y))
+            y += 50
+        
     def cambiarCantidadJugadores(self):
         self.cantidadJugadores = CANTIDAD_JUGADORES[siguienteItem(self.cantidadJugadores, CANTIDAD_JUGADORES)]
         return self.cantidadJugadores
