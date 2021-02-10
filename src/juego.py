@@ -13,7 +13,7 @@ class Juego:
     def __init__(self):
         py.init()
         self.corriendo = False
-        self.fps = FPS_DISPONIBLES[0]
+        self.fps = FPS_DISPONIBLES[FPS_PREDETERMINADO]
         self.reloj = py.time.Clock()
         self.centro =  ANCHURA/2 - ESCALA_NORMAL[0]/2
         self.pantalla = py.display.set_mode( (ANCHURA, ALTURA) )
@@ -31,7 +31,7 @@ class Juego:
 
         self.contador = 0
         self.eventoAdvertencia = py.USEREVENT + 1
-        self.botonAdvertencia = self.botonAdvertencia = Boton(100, 100, bg=NEGRO, escala=(300,40), tamaniof=20,m='Nadita', dinamico=True)
+        self.objetoAdvertencia = Texto(100, 100, escala=(300,40), tamaniof=25, m='Nadita', dinamico=True)
         self.hayAdvertencia = False
 
         self.panelActual = None
@@ -87,41 +87,52 @@ class Juego:
             ),
             Panel(self.pantalla,
                 fondo = os.getcwd() + '/imgs/fondos/partida.png', elementos=[
-                    Boton(self.centro, 430, m='Iniciar', bg=VERDE_OSCURO, acciones=[self.moverFichas]),
+                    Boton(self.centro, 620, m='Tirar dados', bg=VERDE_OSCURO, acciones=[self.moverFichas]),
+                    Boton(self.centro/2.5, 620, escala=ESCALA_MEDIANA, tamaniof=TF_MEDIANO, m='Volver', bg=ROJO_OSCURO, acciones=[self.cancelarPartida])
                 ]
             )
         ]
     
     def detener(self): self.corriendo = False
     
-    def agregarAdvertencia(self, mensaje, tiempo):
+    def agregarAdvertencia(self, mensaje, tiempo, posicion=False, tipo=Boton):
         self.contador = tiempo
-        self.botonAdvertencia.cambiarTexto(mensaje)
+        self.hayAdvertencia = True
+        if not posicion: self.objetoAdvertencia.rect.x, self.objetoAdvertencia.rect.y = self.posicionDelRaton
+        else: self.objetoAdvertencia.rect.x, self.objetoAdvertencia.rect.y = posicion
+        self.objetoAdvertencia.cambiarTexto(mensaje)
         py.time.set_timer(self.eventoAdvertencia, tiempo)
 
-    def cambiarFps(self):
-        pass
+    def cambiarFps(self): 
+        self.fps = FPS_DISPONIBLES[siguienteItem(self.fps, FPS_DISPONIBLES)] 
+        return self.fps
 
+    def cancelarPartida(self):
+        self.enPartida = False
+        self.establecerPanelIngreso()
+        self.restablecerJugadores()
+    
     def moverFichas(self):
-        self.tablero.mover()
+        numero = self.tablero.tirarDados()
+        mensaje = f'Tocó el número {numero+1}'
+        self.agregarAdvertencia(mensaje, 50, (self.centro/1.2, 200))
 
     def comenzarPartida(self):
         if self.ingresandoInformacion: self.ingresandoInformacion = False
         if len(self.bufferJugador) != self.tablero.cantidadJugadores:
-            self.hayAdvertencia = True
-            self.botonAdvertencia.rect.x, self.botonAdvertencia.rect.y= self.posicionDelRaton
             self.agregarAdvertencia('Ingresá el nombre', 20)
         else:
             for i in range(len(self.bufferJugador)):
                 self.tablero.agregarJugador(Jugador(nombre = self.bufferJugador[i], color = COLOR_JUGADORES[i]))
-                print('agregando jugador')
             self.enPartida = True
+            self.tablero.establecerTurnoInicial()
             self.establecerPanelPartida()
     
     def actualizarFondo(self): self.obtenerPanelActual().mostrarFondo()
 
     def restablecerJugadores(self): 
         self.objetivoJugador = 0
+        self.bufferJugador.clear()
         self.ingresandoInformacion = False
         if self.entradaObjetivo: self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
         self.obtenerPanelActual().obtenerElementos()[1].cambiarTexto('Clic para ingresar nombre')
@@ -180,7 +191,7 @@ class Juego:
             self.hayAdvertencia = False
             py.time.set_timer(self.eventoAdvertencia, 0)
 
-    def mostrarAdvertencia(self): self.botonAdvertencia.mostrar(self.pantalla)
+    def mostrarAdvertencia(self): self.objetoAdvertencia.mostrar(self.pantalla)
 
     def chequearEventos(self):
         self.chequearSuperposicion()
@@ -202,7 +213,7 @@ class Juego:
         self.obtenerPanelActual().mostrarElementos()
         if self.hayAdvertencia: self.mostrarAdvertencia()
         if self.enPartida: self.tablero.mostrarJugadores(self.pantalla)
-        self.reloj.tick(60)
+        self.reloj.tick(self.fps)
         py.display.update()
 
     def iniciar(self):
