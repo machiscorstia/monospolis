@@ -86,7 +86,7 @@ class Juego:
                 ]
             ),
             Panel(self.pantalla,
-                fondo = os.getcwd() + '/imgs/fondos/partida.png', elementos=[
+                fondo = os.getcwd() + '/imgs/fondos/tablero.jpg', elementos=[
                     Boton(self.centro, 620, m='Tirar dados', bg=VERDE_OSCURO, acciones=[self.moverFichas]),
                     Boton(self.centro/2.5, 620, escala=ESCALA_MEDIANA, tamaniof=TF_MEDIANO, m='Volver', bg=ROJO_OSCURO, acciones=[self.cancelarPartida])
                 ]
