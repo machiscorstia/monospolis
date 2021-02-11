@@ -23,6 +23,7 @@ class Juego:
         self.enPartida = False
 
         self.ingresandoInformacion = False
+        self.ingresandoJugadores = False
         self.objetivoJugador = 0
         self.entradaObjetivo = None
         self.bufferJugador = []
@@ -109,8 +110,8 @@ class Juego:
 
     def cancelarPartida(self):
         self.enPartida = False
-        self.establecerPanelIngreso()
         self.restablecerJugadores()
+        self.prepararPartida()
     
     def moverFichas(self):
         numero = self.tablero.tirarDados()
@@ -122,6 +123,7 @@ class Juego:
         if len(self.bufferJugador) != self.tablero.cantidadJugadores:
             self.agregarAdvertencia('Ingresá el nombre', 20)
         else:
+            self.tablero.establecerCiudades()
             for i in range(len(self.bufferJugador)):
                 self.tablero.agregarJugador(Jugador(nombre = self.bufferJugador[i], color = COLOR_JUGADORES[i]))
             self.enPartida = True
@@ -135,7 +137,6 @@ class Juego:
         self.bufferJugador.clear()
         self.ingresandoInformacion = False
         if self.entradaObjetivo: self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
-        #self.obtenerPanelActual().obtenerElementos()[1].cambiarTexto('Clic para ingresar nombre')
         self.tablero.limpiarJugadores()
 
     def actualizarPosicionDelRaton(self): self.posicionDelRaton = py.mouse.get_pos()
@@ -157,7 +158,7 @@ class Juego:
     def accionarBoton(self):
         if not self.ingresandoInformacion and self.obtenerColiccionBoton().permiteEntrada:
             self.entradaObjetivo = self.obtenerColiccionBoton()
-            if self.panelActual == PANEL_INGRESO:
+            if self.panelActual == PANEL_INGRESO and self.ingresandoJugadores:
                 self.entradaObjetivo.cambiarTexto('')
                 self.ingresandoInformacion = True
         
@@ -168,22 +169,24 @@ class Juego:
         self.obtenerPanelActual().accionarElemento(self.posicionDelRaton)
 
     def prepararPartida(self):
+        self.ingresandoJugadores = True
         self.establecerPanelIngreso()
+        self.obtenerPanelActual().obtenerElementos()[1].cambiarTexto('Clic para ingresar nombre')
 
     def chequearIngresoTeclado(self, evento):
-        if evento.unicode.isalpha(): self.entradaObjetivo.agregarCaracter(evento.unicode)
+        if evento.unicode.isalpha() and len(self.entradaObjetivo.obtenerTexto()) < MAX_LONGITUD_NOMBRE: self.entradaObjetivo.agregarCaracter(evento.unicode)
         elif evento.key == py.K_BACKSPACE: self.entradaObjetivo.eliminarCaracter()
         elif evento.key == py.K_SPACE: self.entradaObjetivo.agregarCaracter(' ')
 
-        elif evento.key == py.K_RETURN and self.entradaObjetivo.mensaje != '':
-            if self.objetivoJugador >= self.tablero.cantidadJugadores:
-                self.ingresandoInformacion = False
+        elif evento.key == py.K_RETURN and self.entradaObjetivo.mensaje != '' and self.ingresandoJugadores:
+            self.ingresandoInformacion = False
+            self.bufferJugador.append(self.entradaObjetivo.obtenerTexto())
+            self.objetivoJugador += 1
+            self.actualizarEntradaObjetivo()
+            if self.objetivoJugador == self.tablero.cantidadJugadores:
+                self.ingresandoJugadores = False
                 self.entradaObjetivo.cambiarColor(NEGRO, NEGRO)
                 self.entradaObjetivo.cambiarTexto('Ya puedes iniciar partida')
-            else:
-                self.bufferJugador.append(self.entradaObjetivo.obtenerTexto())
-                self.objetivoJugador += 1
-                self.actualizarEntradaObjetivo()
 
     def actualizarAdvertencia(self):
         self.contador -= 1
@@ -198,12 +201,13 @@ class Juego:
 
         for evento in py.event.get():
             if evento.type == py.QUIT: self.detener()
-            elif evento.type == py.MOUSEBUTTONDOWN: self.accionarBoton() if self.obtenerColiccionBoton() else None
+            elif evento.type == py.MOUSEBUTTONDOWN: self.accionarBoton() if self.obtenerColiccionBoton() and not self.hayAdvertencia else None
             elif evento.type == py.MOUSEMOTION: pass
             elif evento.type == self.eventoAdvertencia: self.actualizarAdvertencia()
             elif evento.type == py.KEYDOWN and self.ingresandoInformacion: self.chequearIngresoTeclado(evento)
     
     def actualizarEntradaObjetivo(self):
+        print(self.objetivoJugador)
         self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
         self.entradaObjetivo.cambiarTexto('Clic para ingresar nombre')
     
@@ -215,6 +219,7 @@ class Juego:
         if self.enPartida: 
             self.tablero.mostrarInformacionJugadores(self.pantalla)
             self.tablero.mostrarJugadores(self.pantalla)
+            self.tablero.mostrarCiudades(self.pantalla)
         self.reloj.tick(self.fps)
         py.display.update()
 

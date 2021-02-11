@@ -4,13 +4,15 @@ from src.interfaz.graficos import *
 from src.interfaz.texto import Texto
 
 class Jugador:
-    def __init__(self, nombre = J_NOMBRE, posicion = J_POSICION, color = J_COLOR):
+    def __init__(self, nombre, posicion = J_POSICION_PREDETERMINADO, color = J_COLOR_PREDETERMINADO):
         self.nombre = nombre
-        self.dinero = J_DINERO
+        self.neto = 0
+        self.dinero = J_DINERO_PREDETERMINADO
         self.posicion = nombre
         self.imagen = cargarImagenFicha()
         self.moviendose = False
-        self.imagenInformacion = Texto(100, 100, grueso=True, tamaniof=TF_MEDIANO, escala=ESCALA_MEDIANA, m=f'{self.nombre}: {self.dinero}', dinamico=True)
+        self.textoNombre = Texto(100, 100, grueso=True, tamaniof=TF_MEDIANO, escala=ESCALA_MEDIANA, centrado=False, m=f'{self.nombre}')
+        self.textoDinero = Texto(100, 100, grueso=True, tamaniof=TF_MEDIANO, escala=ESCALA_MEDIANA, centrado=False, colort=VERDE, m=f'{self.dinero}$ ({self.neto})', dinamico=True)
         self.colorFicha = py.Surface(self.imagen.get_size()).convert_alpha()
         self.colorFicha.fill(color)
         self.imagen.blit(self.colorFicha, (0,0), special_flags= py.BLEND_RGBA_MULT)
@@ -20,9 +22,13 @@ class Jugador:
     def comenzarMovimiento(self, posicionInicio, posicionFinal):
         pass
     
-    def mostrarInformacion(self, pantalla, posicion):
-        self.imagenInformacion.rect.x, self.imagenInformacion.rect.y = posicion
-        self.imagenInformacion.mostrar(pantalla)
+    def mostrarNombre(self, pantalla, posicion):
+        self.textoNombre.rect.x, self.textoNombre.rect.y = posicion
+        self.textoNombre.mostrar(pantalla)
+    
+    def mostrarDinero(self, pantalla, posicion):
+        self.textoDinero.rect.x, self.textoDinero.rect.y = posicion
+        self.textoDinero.mostrar(pantalla)
     
     def establecerPosicion(self, posicion): self.rect.centerx, self.rect.centery = posicion
 
