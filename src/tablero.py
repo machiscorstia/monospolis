@@ -14,10 +14,44 @@ class Tablero:
         self.netoMaximo = CANTIDAD_NETOS[NETO_PREDETERMINADO]
         self.cantidadJugadores = CANTIDAD_JUGADORES[JUGADORES_PREDETERMINADO]
         self.posiciones = [generarPosicionesTablero(), generarPosicionCiudades(), generarPosicionPrecios(), generarPosicionPropietario()]
-        self.turnoJugador = None
+        self.jugadorConTurno = None
         self.contador = 0
 
     def establecerTurnoInicial(self): self.jugadorConTurno = self.jugadores[0]
+
+    def actualizarJugadorConTurno(self):
+        self.jugadorConTurno = self.jugadores[siguienteItem(self.jugadorConTurno, self.jugadores)]
+    
+    def empezarMovimiento(self, casillas):
+        casillas += 1
+        self.jugadorMoviendose = True
+        #self.jugadorConTurno.numeroCasilla += casillas + 1
+        if self.jugadorConTurno.casilla + casillas > 27: 
+            print('es mayor')
+            self.jugadorConTurno.casillaFinal = (self.jugadorConTurno.casilla + casillas) - casillas
+            print(self.jugadorConTurno.casillaFinal)
+        else: self.jugadorConTurno.casillaFinal = self.jugadorConTurno.casilla + casillas
+        #self.jugadorConTurno.establecerPosicionFinal(self.posiciones[POSICION_CASILLA][self.jugadorConTurno.numeroCasilla])
+        #self.actualizarJugadorConTurno()
+    
+    def terminarMovimiento(self):
+        if self.obtenerJugadoresEnCasilla(self.jugadorConTurno.casilla) > 1: # si hay mas jugadores en la casilla
+            x, y = self.jugadorConTurno.posicion
+            self.jugadorConTurno.establecerPosicion((x + self.obtenerJugadoresEnCasilla(self.jugadorConTurno.casilla) * 5, y))
+        self.jugadorMoviendose = False
+        self.actualizarJugadorConTurno()
+
+    def obtenerJugadoresEnCasilla(self, casilla):
+        contador = 0
+        for jugador in self.jugadores: 
+            if jugador.casilla == casilla: contador += 1
+        return contador
+    
+    def moverJugadorConTurno(self):
+        if self.jugadorConTurno.casilla < self.jugadorConTurno.casillaFinal:
+            self.jugadorConTurno.casilla += 1
+        self.jugadorConTurno.establecerPosicion(self.posiciones[POSICION_CASILLA][self.jugadorConTurno.casilla])
+        if self.jugadorConTurno.casilla == self.jugadorConTurno.casillaFinal: self.terminarMovimiento()
 
     def mostrarInformacionJugadores(self, pantalla):
         dy= 200
@@ -78,4 +112,4 @@ class Tablero:
     
     def agregarJugador(self, jugador):
         self.jugadores.append(jugador)
-        jugador.establecerPosicion(self.posiciones[0][0])
+        jugador.establecerPosicion(self.posiciones[POSICION_CASILLA][0])

@@ -88,15 +88,15 @@ class Juego:
             ),
             Panel(self.pantalla,
                 fondo = os.getcwd() + '/imgs/fondos/tablero.jpg', elementos=[
-                    Boton(self.centro, 620, m='Tirar dados', bg=VERDE_OSCURO, acciones=[self.moverFichas]),
-                    Boton(self.centro/2.5, 620, escala=ESCALA_MEDIANA, tamaniof=TF_MEDIANO, m='Volver', bg=ROJO_OSCURO, acciones=[self.cancelarPartida])
+                    Boton(self.centro, 620, m='Tirar dados', bg=VERDE_OSCURO, acciones=[self.tirarDados]),
+                    Boton(self.centro/2.5, 620, escala=ESCALA_MEDIANA, tamaniof=TF_MEDIANO, m='Volver', bg=NEGRO, acciones=[self.cancelarPartida])
                 ]
             )
         ]
     
     def detener(self): self.corriendo = False
     
-    def agregarAdvertencia(self, mensaje, tiempo, posicion=False, tipo=Boton):
+    def agregarAdvertencia(self, mensaje, tiempo, posicion=False):
         self.contador = tiempo
         self.hayAdvertencia = True
         if not posicion: self.objetoAdvertencia.rect.x, self.objetoAdvertencia.rect.y = self.posicionDelRaton
@@ -113,10 +113,11 @@ class Juego:
         self.restablecerJugadores()
         self.prepararPartida()
     
-    def moverFichas(self):
+    def tirarDados(self):
         numero = self.tablero.tirarDados()
         mensaje = f'Tocó el número {numero+1}'
-        self.agregarAdvertencia(mensaje, 50, (self.centro/1.2, 200))
+        self.tablero.empezarMovimiento(numero)
+        self.agregarAdvertencia(mensaje, 50, (self.centro/1.2, 550))
 
     def comenzarPartida(self):
         if self.ingresandoInformacion: self.ingresandoInformacion = False
@@ -207,7 +208,6 @@ class Juego:
             elif evento.type == py.KEYDOWN and self.ingresandoInformacion: self.chequearIngresoTeclado(evento)
     
     def actualizarEntradaObjetivo(self):
-        print(self.objetivoJugador)
         self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
         self.entradaObjetivo.cambiarTexto('Clic para ingresar nombre')
     
@@ -216,10 +216,13 @@ class Juego:
         self.actualizarPosicionDelRaton()
         self.obtenerPanelActual().mostrarElementos()
         if self.hayAdvertencia: self.mostrarAdvertencia()
-        if self.enPartida: 
+        if self.enPartida:
+            if self.tablero.jugadorMoviendose: 
+                py.time.wait(500)
+                self.tablero.moverJugadorConTurno()
             self.tablero.mostrarInformacionJugadores(self.pantalla)
-            self.tablero.mostrarJugadores(self.pantalla)
             self.tablero.mostrarCiudades(self.pantalla)
+            self.tablero.mostrarJugadores(self.pantalla)
         self.reloj.tick(self.fps)
         py.display.update()
 

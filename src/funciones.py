@@ -26,9 +26,9 @@ def generarPosicionPrecios():
     temp = None
     for i, r in enumerate(generarPosicionesTablero()):
         if i < 7: temp = [r[0]-15, r[1]- 40]
-        elif i > 7 and i < 14: temp = [r[0], r[1]-35]
-        elif i > 14 and i < 21: temp = [r[0], r[1]-35]
-        else: temp = [r[0]+15, r[1]-35]
+        elif i > 7 and i < 14: temp = [r[0]-15, r[1]-40]
+        elif i > 14 and i < 21: temp = [r[0]-15, r[1]-40]
+        else: temp = [r[0]-15, r[1]-40]
         ruta.append(temp)
     return ruta   
 
