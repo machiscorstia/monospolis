@@ -32,7 +32,7 @@ class Juego:
 
         self.contador = 0
         self.eventoAdvertencia = py.USEREVENT + 1
-        self.objetoAdvertencia = Texto(100, 100, escala=(300,40), tamaniof=25, m='Nadita', dinamico=True)
+        self.objetoAdvertencia = Texto(100, 260, escala=(300,40), tamaniof=25, m='Nadita', dinamico=True)
         self.hayAdvertencia = False
 
         self.panelActual = None
@@ -88,6 +88,9 @@ class Juego:
             ),
             Panel(self.pantalla,
                 fondo = os.getcwd() + '/imgs/fondos/tablero.jpg', elementos=[
+                    Texto(350, 430, m='Quieres comprar..', escala=ESCALA_MEDIANA, tamaniof=TF_MEDIANO, dinamico=True, oculto=True),
+                    Boton(280, 500, m='Comprar', bg=VERDE_OSCURO, escala=ESCALA_MEDIANA, tamaniof=TF_MEDIANO, oculto=True, acciones=[self.tablero.comprarPropiedad, self.ocultarElementosCompra]),
+                    Boton(420, 500, m='Cancelar', bg=ROJO_OSCURO, escala=ESCALA_MEDIANA, tamaniof=TF_MEDIANO, oculto=True, acciones=[]),
                     Boton(self.centro, 620, m='Tirar dados', bg=VERDE_OSCURO, acciones=[self.tirarDados]),
                     Boton(self.centro/2.5, 620, escala=ESCALA_MEDIANA, tamaniof=TF_MEDIANO, m='Volver', bg=NEGRO, acciones=[self.cancelarPartida])
                 ]
@@ -114,10 +117,11 @@ class Juego:
         self.prepararPartida()
     
     def tirarDados(self):
+        if self.tablero.jugadorComprando: return self.agregarAdvertencia('Elije una opción para seguir el juego', 50, (self.centro/1.2, 400))
         numero = self.tablero.tirarDados()
         mensaje = f'Tocó el número {numero+1}'
         self.tablero.empezarMovimiento(numero)
-        self.agregarAdvertencia(mensaje, 50, (self.centro/1.2, 550))
+        self.agregarAdvertencia(mensaje, 50, (self.centro/1.2, 200))
 
     def comenzarPartida(self):
         if self.ingresandoInformacion: self.ingresandoInformacion = False
@@ -211,15 +215,34 @@ class Juego:
         self.entradaObjetivo.cambiarColor(BLANCO, COLOR_JUGADORES[self.objetivoJugador])
         self.entradaObjetivo.cambiarTexto('Clic para ingresar nombre')
     
+    def ocultarElementosCompra(self):
+        for i in range(3): 
+            self.obtenerPanelActual().ocultarElemento(self.obtenerPanelActual().obtenerElementos()[i])
+    
+    def mostrarElementosCompra(self):
+        for i in range(3): 
+            self.obtenerPanelActual().obtenerElementos()[i].oculto = False
+
+    def ocultarElementosCompra(self):
+        for i in range(3):
+            self.obtenerPanelActual().obtenerElementos()[i].oculto = True
+    
     def actualizarPantalla(self):
         self.actualizarFondo()
         self.actualizarPosicionDelRaton()
         self.obtenerPanelActual().mostrarElementos()
         if self.hayAdvertencia: self.mostrarAdvertencia()
         if self.enPartida:
+            if self.tablero.jugadorComprando:
+                textoCompra = self.obtenerPanelActual().obtenerElementos()[0]
+                textoCompra.cambiarTexto('')
+                textoCompra.agregarCaracter('¿Quieres comprar ' + self.tablero.obtenerCiudadActual().nombre + '?')
+                self.mostrarElementosCompra()
+            
             if self.tablero.jugadorMoviendose: 
-                py.time.wait(500)
+                py.time.wait(200)
                 self.tablero.moverJugadorConTurno()
+            
             self.tablero.mostrarInformacionJugadores(self.pantalla)
             self.tablero.mostrarCiudades(self.pantalla)
             self.tablero.mostrarJugadores(self.pantalla)

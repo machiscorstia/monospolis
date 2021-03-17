@@ -1,6 +1,7 @@
 from src.funciones import *
 from src.constantes import *
 from src.interfaz.texto import Texto
+from src.interfaz.boton import Boton
 from src.ciudad import Ciudad
 from random import randrange
 
@@ -8,13 +9,14 @@ class Tablero:
     def __init__(self):
         self.jugadores = list()
         self.ciudades = list()
-        self.jugadorMoviendose = None
+        self.jugadorMoviendose = False
+        self.jugadorComprando = False
         self.dineroInicial = DINERO_INICIAL
         self.salario = CANTIDAD_SALARIOS[SALARIO_PREDETERMINADO]
         self.netoMaximo = CANTIDAD_NETOS[NETO_PREDETERMINADO]
         self.cantidadJugadores = CANTIDAD_JUGADORES[JUGADORES_PREDETERMINADO]
         self.posiciones = [generarPosicionesTablero(), generarPosicionCiudades(), generarPosicionPrecios(), generarPosicionPropietario()]
-        self.jugadorConTurno = None
+        self.jugadorConTurno = False
         self.contador = 0
 
     def establecerTurnoInicial(self): self.jugadorConTurno = self.jugadores[0]
@@ -27,20 +29,34 @@ class Tablero:
         self.jugadorMoviendose = True
         #self.jugadorConTurno.numeroCasilla += casillas + 1
         if self.jugadorConTurno.casilla + casillas > 27: 
-            print('es mayor')
-            self.jugadorConTurno.casillaFinal = (self.jugadorConTurno.casilla + casillas) - casillas
+            self.jugadorConTurno.casillaFinal = (self.jugadorConTurno.casilla + casillas) - len(self.posiciones[POSICION_CASILLA])
             print(self.jugadorConTurno.casillaFinal)
         else: self.jugadorConTurno.casillaFinal = self.jugadorConTurno.casilla + casillas
         #self.jugadorConTurno.establecerPosicionFinal(self.posiciones[POSICION_CASILLA][self.jugadorConTurno.numeroCasilla])
         #self.actualizarJugadorConTurno()
     
-    def terminarMovimiento(self):
-        if self.obtenerJugadoresEnCasilla(self.jugadorConTurno.casilla) > 1: # si hay mas jugadores en la casilla
+    def obtenerCiudadActual(self): return self.obtenerCiudadPorCasilla(self.jugadorConTurno.casilla)
+    
+    def chequearJugadoresEnCasilla(self, casilla):
+        if self.obtenerJugadoresEnCasilla(casilla) > 1: # si hay mas jugadores en la casilla
             x, y = self.jugadorConTurno.posicion
             self.jugadorConTurno.establecerPosicion((x + self.obtenerJugadoresEnCasilla(self.jugadorConTurno.casilla) * 5, y))
+        
+    def terminarMovimiento(self):
+        self.chequearJugadoresEnCasilla(self.jugadorConTurno.casilla)
         self.jugadorMoviendose = False
+        #self.actualizarJugadorConTurno()
+        if not self.obtenerCiudadActual().propietario: self.jugadorComprando = True
+    
+    def comprarPropiedad(self):
+        self.obtenerCiudadActual().propietario = self.jugadorConTurno
+        self.jugadorConTurno.dinero = abs(self.obtenerCiudadActual().precio - self.jugadorConTurno.dinero)
+        self.jugadorComprando = False
         self.actualizarJugadorConTurno()
-
+        
+    def obtenerCiudadPorCasilla(self, casilla):
+        return self.ciudades[casilla]
+    
     def obtenerJugadoresEnCasilla(self, casilla):
         contador = 0
         for jugador in self.jugadores: 
@@ -48,8 +64,8 @@ class Tablero:
         return contador
     
     def moverJugadorConTurno(self):
-        if self.jugadorConTurno.casilla < self.jugadorConTurno.casillaFinal:
-            self.jugadorConTurno.casilla += 1
+        if self.jugadorConTurno.casilla == 27: self.jugadorConTurno.casilla = 0
+        if self.jugadorConTurno.casilla != self.jugadorConTurno.casillaFinal: self.jugadorConTurno.casilla += 1
         self.jugadorConTurno.establecerPosicion(self.posiciones[POSICION_CASILLA][self.jugadorConTurno.casilla])
         if self.jugadorConTurno.casilla == self.jugadorConTurno.casillaFinal: self.terminarMovimiento()
 
@@ -97,7 +113,6 @@ class Tablero:
 
     def establecerCiudades(self):
         for i in CIUDADES:
-            if verificarExistencia(i, [0, 7, 14, 21]): continue
             self.agregarCiudad(
                 Ciudad(
                     CIUDADES[i][0], CIUDADES[i][1],

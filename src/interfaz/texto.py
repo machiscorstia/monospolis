@@ -2,7 +2,7 @@ import pygame.font
 from src.constantes import *
 
 class Texto:
-    def __init__(self, x, y, fuente=FUENTE_PRINCIPAL, grueso=False, tamaniof=TF_NORMAL, bg=NEGRO, colort=BLANCO, escala=ESCALA_NORMAL, m=None, centrado=True, dinamico=True):
+    def __init__(self, x, y, fuente=FUENTE_PRINCIPAL, grueso=False, tamaniof=TF_NORMAL, bg=NEGRO, colort=BLANCO, escala=ESCALA_NORMAL, m=None, oculto=False, centrado=True, dinamico=True):
         self.x, self.y = x, y
         self.anchura, self.altura = escala
         self.fuente = pygame.font.SysFont(fuente, tamaniof, bold= grueso)
@@ -12,6 +12,7 @@ class Texto:
         self.mensaje = m
         self.centrado = centrado
         self.dinamico = dinamico
+        self.oculto = oculto
         self.caracterLimite = None
         self.prepararMensaje(self.mensaje)
     
@@ -28,6 +29,7 @@ class Texto:
         self.mensajeImagenRect.center = self.rect.center
 
     def mostrar(self, pantalla):
+        if self.oculto: return
         if self.dinamico: self.prepararMensaje(self.mensaje)
         self.mensajeImagen.set_colorkey(self.colorFondo)
         pantalla.blit(self.mensajeImagen, self.mensajeImagenRect if self.centrado else self.rect)
